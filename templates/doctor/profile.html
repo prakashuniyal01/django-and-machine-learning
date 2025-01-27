@@ -39,7 +39,7 @@
     <a href="{% url 'doctorprofile' %}">Appointments</a>
     <a href="{% url 'doctorprofile' %}">Analytics</a>
     <a href="{% url 'doctor-profile' %}">Profile</a>
-    <a href="/logout">Logout</a>
+    <a href="#" onclick="logoutUser()">Logout</a>
 </div>
 <!-- Full-screen Profile Section -->
 <section class="profile-section">
@@ -169,8 +169,8 @@
         })
         .catch(error => console.error("Error fetching profile:", error));
 
-        // ✅ Enable editing
-        editBtn.addEventListener("click", function () {
+         // ✅ Enable editing
+         editBtn.addEventListener("click", function () {
             inputs.forEach(input => input.disabled = false);
             editBtn.classList.add("d-none");
             saveBtn.classList.remove("d-none");
@@ -184,7 +184,74 @@
             saveBtn.classList.add("d-none");
             cancelBtn.classList.add("d-none");
         });
+
+        // ✅ Save updated profile data
+        saveBtn.addEventListener("click", function () {
+            const updatedData = {
+                email: document.getElementById("email").value,
+                phone: document.getElementById("phone").value,
+                gender: document.getElementById("gender").value,
+                date_of_birth: document.getElementById("dob").value,
+                address: document.getElementById("address").value,
+                bio: document.getElementById("bio").value,
+            };
+
+            // If the user is a doctor, add doctor-specific fields
+            if (document.getElementById("doctor-details").classList.contains("d-none") === false) {
+                updatedData.license_number = document.getElementById("license_number").value;
+                updatedData.clinic_name = document.getElementById("clinic_name").value;
+                updatedData.clinic_address = document.getElementById("clinic_address").value;
+                updatedData.years_experience = document.getElementById("years_experience").value;
+            }
+
+            // Send PUT request to update the profile
+            fetch(`/api/${user_id}/update/`, {
+                method: "PUT",
+                headers: {
+                    "Authorization": `Bearer ${token}`,
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(updatedData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert("Profile updated successfully!");
+                // Optionally, reload the page to reflect the changes
+                location.reload();
+            })
+            .catch(error => console.error("Error updating profile:", error));
+        });
     });
+
+
+    // ✅ Profile Photo Upload
+    function logoutUser() {
+        // Confirmation before logout
+        let confirmLogout = confirm("Are you sure you want to logout?");
+        
+        if (confirmLogout) {
+            // 1️⃣ Remove access token from LocalStorage & SessionStorage
+            localStorage.removeItem("access_token");
+            sessionStorage.clear();
+    
+            // 2️⃣ Clear browser cache (Disable back button)
+            history.pushState(null, null, location.href);
+            window.onpopstate = function () {
+                history.go(1);
+            };
+    
+            // 3️⃣ Reload the page first, then redirect to login
+            setTimeout(() => {
+                location.reload(); // Reload the current page to clear cache or user state
+            }, 100);
+    
+            // 4️⃣ Redirect to login after a short delay
+            setTimeout(() => {
+                location.href = "/login/"; // Redirect to login page
+            }, 300); // Add a slight delay for smooth UX
+        }
+    }
+    
 </script>
 
 {% endblock %}

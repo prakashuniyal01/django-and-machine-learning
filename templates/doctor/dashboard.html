@@ -35,7 +35,7 @@
   <a href="#appointments">Appointments</a>
   <a href="#analytics">Analytics</a>
   <a href="{% url 'doctor-profile' %}">Profile</a>
-  <a href="/logout">Logout</a>
+  <a href="#" onclick="logoutUser()">Logout</a>
 </div>
 
 <!-- Button to toggle sidebar (for mobile screens) -->
@@ -389,6 +389,35 @@
 
   loadCharts();
   // =================================================================================================================
+
+  function logoutUser() {
+    // Confirmation before logout
+    let confirmLogout = confirm("Are you sure you want to logout?");
+    
+    if (confirmLogout) {
+        // 1️⃣ Remove access token from LocalStorage & SessionStorage
+        localStorage.removeItem("access_token");
+        sessionStorage.clear();
+
+        // 2️⃣ Clear browser cache (Disable back button)
+        history.pushState(null, null, location.href);
+        window.onpopstate = function () {
+            history.go(1);
+        };
+
+        // 3️⃣ Reload the page first, then redirect to login
+        setTimeout(() => {
+            location.reload(); // Reload the current page to clear cache or user state
+        }, 100);
+
+        // 4️⃣ Redirect to login after a short delay
+        setTimeout(() => {
+            location.href = "/login/"; // Redirect to login page
+        }, 300); // Add a slight delay for smooth UX
+    }
+}
+
+
 </script>
 
 {% endblock %}
