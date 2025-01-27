@@ -4,68 +4,98 @@
 
 {% comment %} navbar {% endcomment %}
 {% block navbar %}
-<li class="nav-item active">
-    <a class="nav-link" href="#">Home</a>
-</li>
-<li class="nav-item">
-    <a class="nav-link" href="#">About</a>
-</li>
-<li class="nav-item">
-    <a class="nav-link" href="#">Contact</a>
-</li>
+{% comment %} <li class="nav-item"><a class="nav-link" href="#">Home</a></li>
+<li class="nav-item"><a class="nav-link" href="#">Find a Doctor</a></li> {% endcomment %}
+<li class="nav-item"><a class="nav-link" href="{% url 'login' %}">Login/Sign Up</a></li>
+{% comment %} <li class="nav-item"><a class="nav-link" href="#">Contact Us</a></li>
+<li class="nav-item"><a class="nav-link" href="#">About Us</a></li> {% endcomment %}
 {% endblock %}
 
 {% load static %}
 {% block content %}
-    <div class="container py-5">
-        <div class="row">
-            <!-- Welcome Text Section -->
-            <div class="col-md-6 mb-4">
-                <div class="banner-text">
-                    <h1 class="display-4">Welcome to Smart Healthcare</h1>
-                    <p class="lead">Your health is our priority. Stay updated with the latest healthcare news and services.</p>
-                    <a href="#" class="btn btn-primary btn-lg">Learn More</a>
-                </div>
-            </div>
+<section class="hero">
+    <div class="container">
+        <h1>Find Your Doctor and Book Your Appointment with Ease!</h1>
+        <form id="search-form" class="d-flex justify-content-center mb-4">
+            <select id="specialization-dropdown" class="form-select me-2">
+                <option value="">All Specializations</option>
+            </select>
+            <button class="btn btn-primary" type="submit">Search</button>
+        </form>
+    </div>
+</section>
 
-            <!-- Image Section -->
-            <div class="col-md-6 mb-4">
-                <img src="{% static 'images/download.jpeg' %}" class="img-fluid rounded shadow-lg" alt="Healthcare" style="max-height: 400px; object-fit: cover;">
-            </div>
-        </div>
-
-        <!-- Doctors' Profile Cards -->
-        <div class="row">
-            <div class="col-md-4 mb-4">
-                <div class="card">
-                    <img src="{% static 'images/doctor1.jpg' %}" class="card-img-top" alt="Doctor 1">
-                    <div class="card-body">
-                        <h5 class="card-title">Dr. John Doe</h5>
-                        <p class="card-text">Specialist in General Medicine. Available for appointments.</p>
-                        <a href="#" class="btn btn-primary">Book Appointment</a>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4 mb-4">
-                <div class="card">
-                    <img src="{% static 'images/doctor2.jpg' %}" class="card-img-top" alt="Doctor 2">
-                    <div class="card-body">
-                        <h5 class="card-title">Dr. Jane Smith</h5>
-                        <p class="card-text">Pediatrician with over 10 years of experience. Available for consultations.</p>
-                        <a href="#" class="btn btn-primary">Book Appointment</a>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4 mb-4">
-                <div class="card">
-                    <img src="{% static 'images/doctor3.jpg' %}" class="card-img-top" alt="Doctor 3">
-                    <div class="card-body">
-                        <h5 class="card-title">Dr. Alice Brown</h5>
-                        <p class="card-text">Dermatologist. Offering professional skincare treatments.</p>
-                        <a href="#" class="btn btn-primary">Book Appointment</a>
-                    </div>
-                </div>
-            </div>
+<!-- Doctors List -->
+<section class="doctors-list">
+    <div class="container">
+        <h2>Available Doctors</h2>
+        <div id="doctors-container" class="row">
+            <!-- Doctors will be loaded dynamically here -->
         </div>
     </div>
+</section>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const specializationDropdown = document.getElementById("specialization-dropdown");
+        const doctorsContainer = document.getElementById("doctors-container");
+        const searchForm = document.getElementById("search-form");
+
+        // Function to fetch and display doctors
+        function fetchDoctors(specializationId = "") {
+            let url = specializationId ? `/api/doctors/?specialization=${specializationId}` : "/api/doctors/";
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    doctorsContainer.innerHTML = ""; // Clear previous results
+                    if (data.length === 0) {
+                        doctorsContainer.innerHTML = "<p class='text-center'>No doctors found for the selected specialization.</p>";
+                        return;
+                    }
+                    data.forEach(doctor => {
+                        if (!specializationId || doctor.doctor_profile.specialization_details.some(spec => spec.id == specializationId)) {
+                            const doctorCard = document.createElement("div");
+                            doctorCard.className = "col-md-4 mb-4";
+                            doctorCard.innerHTML = `
+                                <div class="card border-0 shadow">
+                                    <img src="${doctor.profile_photo}" class="card-img-top" alt="Doctor Photo">
+                                    <div class="card-body">
+                                        <h5 class="card-title">${doctor.username}</h5>
+                                        <p class="card-text">${doctor.bio}</p>
+                                        <p><strong>Experience:</strong> ${doctor.doctor_profile.years_experience} years</p>
+                                        <p><strong>Clinic:</strong> ${doctor.doctor_profile.clinic_name}</p>
+                                    </div>
+                                </div>
+                            `;
+                            doctorsContainer.appendChild(doctorCard);
+                        }
+                    });
+                })
+                .catch(error => console.error("Error fetching doctors:", error));
+        }
+
+        // Load all doctors initially
+        fetchDoctors();
+
+        // Load Specializations in Dropdown
+        fetch("/api/specializations/")
+            .then(response => response.json())
+            .then(data => {
+                data.forEach(specialization => {
+                    let option = document.createElement("option");
+                    option.value = specialization.id;
+                    option.textContent = specialization.name;
+                    specializationDropdown.appendChild(option);
+                });
+            })
+            .catch(error => console.error("Error fetching specializations:", error));
+
+        // Fetch doctors based on selected specialization
+        searchForm.addEventListener("submit", function (event) {
+            event.preventDefault();
+            const selectedSpecialization = specializationDropdown.value;
+            fetchDoctors(selectedSpecialization);
+        });
+    });
+</script>
 {% endblock %}

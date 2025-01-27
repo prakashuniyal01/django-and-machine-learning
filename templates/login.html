@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+
+{% block title %}Login - Smart Healthcare{% endblock %}
+{% block navbar %}
+<li class="nav-item"><a class="nav-link" href="/">Home</a></li>
+{% endblock %}
+{% block content %}
+    <div class="container d-flex justify-content-center align-items-center vh-100">
+        <div class="card p-4" style="width: 100%; max-width: 400px;">
+            <h4 class="text-center mb-4">Login to Smart Healthcare</h4>
+            <form id="loginForm">
+                <div class="mb-3">
+                    <label for="email" class="form-label">Email</label>
+                    <input type="email" class="form-control" id="email" required>
+                </div>
+                <div class="mb-3 position-relative">
+                    <label for="password" class="form-label">Password</label>
+                    <input type="password" class="form-control" id="password" required>
+                    <button type="button" class="btn btn-outline-secondary position-absolute top-50 end-0 translate-middle-y" id="togglePassword">
+                        <i class="bi bi-eye-slash" id="eyeIcon"></i>
+                    </button>
+                </div>
+                <button type="submit" class="btn btn-primary w-100">Login</button>
+            </form>
+            <a>Don't have an account? <a href="{% url 'register' %}">Sign up</a></a>
+        </div>
+    </div>
+
+    <script>
+        // Toggle password visibility
+        const togglePassword = document.getElementById('togglePassword');
+        const passwordField = document.getElementById('password');
+        const eyeIcon = document.getElementById('eyeIcon');
+
+        togglePassword.addEventListener('click', function() {
+            // Toggle password visibility
+            const type = passwordField.type === 'password' ? 'text' : 'password';
+            passwordField.type = type;
+            // Toggle icon
+            eyeIcon.classList.toggle('bi-eye');
+            eyeIcon.classList.toggle('bi-eye-slash');
+        });
+
+        // Handle form submission
+        document.getElementById('loginForm').addEventListener('submit', async function(event) {
+            event.preventDefault();
+
+            // Get form data
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            // Send login request
+            const response = await fetch('/api/login/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ email, password })
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                const role = data.user.role;
+
+                // Store tokens and user information in localStorage
+                localStorage.setItem('access_token', data.tokens.access);
+                localStorage.setItem('refresh_token', data.tokens.refresh);
+                localStorage.setItem('user_info', JSON.stringify(data.user));
+
+                // Redirect based on user role
+                if (role === 'doctor') {
+                    window.location.href = '/doctorprofile/';
+                } else if (role === 'patient') {
+                    window.location.href = '/patientprofile/';
+                }
+            } else {
+                alert('Login failed. Please check your credentials.');
+            }
+        });
+    </script>
+{% endblock %}

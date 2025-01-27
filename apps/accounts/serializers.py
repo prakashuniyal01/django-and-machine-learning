@@ -365,3 +365,29 @@ class CustomUserSerializer(serializers.ModelSerializer):
             'username', 'email', 'phone', 'gender', 'date_of_birth', 
             'address', 'bio', 'profile_photo', 'role', 'doctor_profile'
         ]
+
+# ============================================ user details ==============================================
+class UserDetailSerializer(serializers.ModelSerializer):
+    """
+    Serializer to fetch user details including nested profiles for doctors and patients.
+    """
+    doctor_profile = DoctorProfileSerializer(read_only=True)  # Nested doctor profile
+    patient_profile = PatientProfileSerializer(read_only=True)  # Nested patient profile
+
+    class Meta:
+        model = User
+        fields = [
+            'id',  # User ID
+            'username',
+            'email',
+            'phone',
+            'fullname',
+            'gender',
+            'date_of_birth',
+            'address',
+            'bio',
+            'profile_photo',
+            'role',
+            'doctor_profile',
+            'patient_profile',
+        ]

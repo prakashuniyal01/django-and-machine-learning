@@ -2,24 +2,31 @@ from rest_framework import generics, status
 from rest_framework.response import Response
 from django.db import DatabaseError
 from rest_framework.exceptions import ValidationError
-from .serializers import UserRegistrationSerializer, LoginSerializer, UserUpdateSerializer, ChangePasswordSerializer, PasswordResetOTPSerializer
+from .serializers import UserRegistrationSerializer,SpecializationSerializer,CustomUserSerializer,UserDetailSerializer, LoginSerializer, UserUpdateSerializer, ChangePasswordSerializer, PasswordResetOTPSerializer
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import permissions
 import logging
 from rest_framework.views import APIView
-from .models import PasswordResetOTP
+from .models import PasswordResetOTP, Specialization, CustomUser
 from django.core.exceptions import ObjectDoesNotExist
 from rest_framework import viewsets
-from .models import CustomUser
-from .serializers import CustomUserSerializer
 
 # Initialize logger
 logger = logging.getLogger(__name__)
 
 User = get_user_model()
 
+# ====================================== specialization view ==================================================
+class SpecializationListView(APIView):
+    """
+    API view to get the list of all specializations.
+    """
+    def get(self, request):
+        specializations = Specialization.objects.all()
+        serializer = SpecializationSerializer(specializations, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 # ====================================== register view ==================================================
 class RegisterView(generics.CreateAPIView):
     """
@@ -273,7 +280,15 @@ class PasswordResetView(generics.UpdateAPIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
 
+class UserProfileView(APIView):
+    """
+    API endpoint to fetch user details based on authentication.
+    """
+    permission_classes = [IsAuthenticated]
 
-
+    def get(self, request, *args, **kwargs):
+        user = request.user
+        serializer = UserDetailSerializer(user)
+        return Response(serializer.data)
 
     
