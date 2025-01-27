@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+
+{% block title %}Home - Smart Healthcare{% endblock %}
+
+{% comment %} navbar {% endcomment %}
+{% block navbar %}
+<li class="nav-item active">
+    <a class="nav-link" href="#">Home</a>
+</li>
+<li class="nav-item">
+    <a class="nav-link" href="#">About</a>
+</li>
+<li class="nav-item">
+    <a class="nav-link" href="#">Contact</a>
+</li>
+{% endblock %}
+
+{% load static %}
+{% block content %}
+    <div class="container py-5">
+        <div class="row">
+            <!-- Welcome Text Section -->
+            <div class="col-md-6 mb-4">
+                <div class="banner-text">
+                    <h1 class="display-4">Welcome to Smart Healthcare</h1>
+                    <p class="lead">Your health is our priority. Stay updated with the latest healthcare news and services.</p>
+                    <a href="#" class="btn btn-primary btn-lg">Learn More</a>
+                </div>
+            </div>
+
+            <!-- Image Section -->
+            <div class="col-md-6 mb-4">
+                <img src="{% static 'images/download.jpeg' %}" class="img-fluid rounded shadow-lg" alt="Healthcare" style="max-height: 400px; object-fit: cover;">
+            </div>
+        </div>
+
+        <!-- Doctors' Profile Cards -->
+        <div class="row">
+            <div class="col-md-4 mb-4">
+                <div class="card">
+                    <img src="{% static 'images/doctor1.jpg' %}" class="card-img-top" alt="Doctor 1">
+                    <div class="card-body">
+                        <h5 class="card-title">Dr. John Doe</h5>
+                        <p class="card-text">Specialist in General Medicine. Available for appointments.</p>
+                        <a href="#" class="btn btn-primary">Book Appointment</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="card">
+                    <img src="{% static 'images/doctor2.jpg' %}" class="card-img-top" alt="Doctor 2">
+                    <div class="card-body">
+                        <h5 class="card-title">Dr. Jane Smith</h5>
+                        <p class="card-text">Pediatrician with over 10 years of experience. Available for consultations.</p>
+                        <a href="#" class="btn btn-primary">Book Appointment</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="card">
+                    <img src="{% static 'images/doctor3.jpg' %}" class="card-img-top" alt="Doctor 3">
+                    <div class="card-body">
+                        <h5 class="card-title">Dr. Alice Brown</h5>
+                        <p class="card-text">Dermatologist. Offering professional skincare treatments.</p>
+                        <a href="#" class="btn btn-primary">Book Appointment</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
