@@ -15,6 +15,9 @@ def register(request):
 def doctorprofile(request):
     return render(request, 'doctor/dashboard.html')
 
+def profile(request):
+    return render(request, 'doctor/profile.html')
+
 # @login_required
 def patientprofile(request):
     return render(request, 'patient/dashboard.html')

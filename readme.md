@@ -118,3 +118,6 @@ CREATE TABLE appointments (
 -- References both doctors and patients.
 -- status could be tracked to handle cancellations, rescheduling, etc.
 ```
+
+
+

@@ -1,88 +1,106 @@
-{% extends 'base.html' %}
-
-{% block title %}Login - Smart Healthcare{% endblock %}
-{% block navbar %}
-<li class="nav-item ">
-    <a class="nav-link" href="#">Home</a>
-</li>
-<li class="nav-item ">
-    <a class="nav-link" href="{% url 'login' %}">Login</a>
-</li>
-<li class="nav-item active">
-    <a class="nav-link" href="{% url 'register' %}">Register</a>
-</li>
-{% endblock %}
-{% block content %}
-    <div class="container d-flex justify-content-center align-items-center vh-100">
-        <div class="card p-4" style="width: 100%; max-width: 400px;">
-            <h4 class="text-center mb-4">Login to Smart Healthcare</h4>
-            <form id="loginForm">
-                <div class="mb-3">
-                    <label for="email" class="form-label">Email</label>
-                    <input type="email" class="form-control" id="email" required>
-                </div>
-                <div class="mb-3 position-relative">
-                    <label for="password" class="form-label">Password</label>
-                    <input type="password" class="form-control" id="password" required>
-                    <button type="button" class="btn btn-outline-secondary position-absolute top-50 end-0 translate-middle-y" id="togglePassword">
-                        <i class="bi bi-eye-slash" id="eyeIcon"></i>
-                    </button>
-                </div>
-                <button type="submit" class="btn btn-primary w-100">Login</button>
-            </form>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hostinger Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        .menu {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 20px;
+        }
+        .menu a {
+            text-decoration: none;
+            color: #333;
+            font-weight: bold;
+        }
+        .section {
+            margin-bottom: 20px;
+        }
+        .section h2 {
+            color: #555;
+            border-bottom: 2px solid #ddd;
+            padding-bottom: 10px;
+        }
+        .section ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        .section ul li {
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+        }
+        .section ul li:last-child {
+            border-bottom: none;
+        }
+        .button {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 5px;
+            text-align: center;
+        }
+        .button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>HOSTINGER</h1>
+        <div class="menu">
+            <a href="#">Home</a>
+            <a href="#">Websites</a>
+            <a href="#">Websites list</a>
+            <a href="#">Migrations</a>
+            <a href="#">Domains</a>
+            <a href="#">Emails</a>
+            <a href="#">VPS</a>
+            <a href="#">Billing</a>
+            <a href="#">Marketplace</a>
+        </div>
+        <div class="section">
+            <h2>Hosting</h2>
+            <ul>
+                <li><strong>Premium Web Hosting</strong><br>Expires on 2027-01-25 | joblanee.in</li>
+            </ul>
+        </div>
+        <div class="section">
+            <h2>Domains</h2>
+            <ul>
+                <li><strong>joblanee.in</strong><br>Expires on 2026-01-25</li>
+            </ul>
+        </div>
+        <div class="section">
+            <h2>Emails</h2>
+            <ul>
+                <li><strong>Free Email</strong><br>Expires on 2027-01-25 | @joblanee.in</li>
+            </ul>
+        </div>
+        <div class="section">
+            <a href="#" class="button">Manage</a>
         </div>
     </div>
-
-    <script>
-        // Toggle password visibility
-        const togglePassword = document.getElementById('togglePassword');
-        const passwordField = document.getElementById('password');
-        const eyeIcon = document.getElementById('eyeIcon');
-
-        togglePassword.addEventListener('click', function() {
-            // Toggle password visibility
-            const type = passwordField.type === 'password' ? 'text' : 'password';
-            passwordField.type = type;
-            // Toggle icon
-            eyeIcon.classList.toggle('bi-eye');
-            eyeIcon.classList.toggle('bi-eye-slash');
-        });
-
-        // Handle form submission
-        document.getElementById('loginForm').addEventListener('submit', async function(event) {
-            event.preventDefault();
-
-            // Get form data
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-
-            // Send login request
-            const response = await fetch('/api/login/', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ email, password })
-            });
-
-            if (response.ok) {
-                const data = await response.json();
-                const role = data.user.role;
-
-                // Store tokens and user information in localStorage
-                localStorage.setItem('access_token', data.tokens.access);
-                localStorage.setItem('refresh_token', data.tokens.refresh);
-                localStorage.setItem('user_info', JSON.stringify(data.user));
-
-                // Redirect based on user role
-                if (role === 'doctor') {
-                    window.location.href = '/doctorprofile/';
-                } else if (role === 'patient') {
-                    window.location.href = '/patientprofile/';
-                }
-            } else {
-                alert('Login failed. Please check your credentials.');
-            }
-        });
-    </script>
-{% endblock %}
+</body>
+</html>

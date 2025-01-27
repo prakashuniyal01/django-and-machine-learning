@@ -1,62 +1,80 @@
 {% extends 'base.html' %}
-
 {% block title %}Home - Smart Healthcare{% endblock %}
-
-{% comment %} navbar {% endcomment %}
 {% block navbar %}
-{% comment %} <li class="nav-item"><a class="nav-link" href="#">Home</a></li>
-<li class="nav-item"><a class="nav-link" href="#">Find a Doctor</a></li> {% endcomment %}
-<li class="nav-item"><a class="nav-link" href="{% url 'login' %}">Login/Sign Up</a></li>
-{% comment %} <li class="nav-item"><a class="nav-link" href="#">Contact Us</a></li>
-<li class="nav-item"><a class="nav-link" href="#">About Us</a></li> {% endcomment %}
-{% endblock %}
-
-{% load static %}
-{% block content %}
+<a class="navbar-brand" href="#">Smart Healthcare</a>
+<button
+  class="navbar-toggler"
+  type="button"
+  data-bs-toggle="collapse"
+  data-bs-target="#navbarNav"
+  aria-controls="navbarNav"
+  aria-expanded="false"
+  aria-label="Toggle navigation"
+>
+  <span class="navbar-toggler-icon"></span>
+</button>
+<div class="collapse navbar-collapse" id="navbarNav">
+  <ul class="navbar-nav ms-auto">
+    <li class="nav-item">
+      <a class="nav-link" href="{% url 'login' %}">Login/Sign Up</a>
+    </li>
+  </ul>
+</div>
+{% endblock %} {% load static %} {% block content %}
 <section class="hero">
-    <div class="container">
-        <h1>Find Your Doctor and Book Your Appointment with Ease!</h1>
-        <form id="search-form" class="d-flex justify-content-center mb-4">
-            <select id="specialization-dropdown" class="form-select me-2">
-                <option value="">All Specializations</option>
-            </select>
-            <button class="btn btn-primary" type="submit">Search</button>
-        </form>
-    </div>
+  <div class="container">
+    <h1>Find Your Doctor and Book Your Appointment with Ease!</h1>
+    <form id="search-form" class="d-flex justify-content-center mb-4">
+      <select id="specialization-dropdown" class="form-select me-2">
+        <option value="">All Specializations</option>
+      </select>
+      <button class="btn btn-primary" type="submit">Search</button>
+    </form>
+  </div>
 </section>
 
 <!-- Doctors List -->
 <section class="doctors-list">
-    <div class="container">
-        <h2>Available Doctors</h2>
-        <div id="doctors-container" class="row">
-            <!-- Doctors will be loaded dynamically here -->
-        </div>
+  <div class="container">
+    <h2>Available Doctors</h2>
+    <div id="doctors-container" class="row">
+      <!-- Doctors will be loaded dynamically here -->
     </div>
+  </div>
 </section>
 
 <script>
-    document.addEventListener("DOMContentLoaded", function () {
-        const specializationDropdown = document.getElementById("specialization-dropdown");
-        const doctorsContainer = document.getElementById("doctors-container");
-        const searchForm = document.getElementById("search-form");
+  document.addEventListener("DOMContentLoaded", function () {
+    const specializationDropdown = document.getElementById(
+      "specialization-dropdown"
+    );
+    const doctorsContainer = document.getElementById("doctors-container");
+    const searchForm = document.getElementById("search-form");
 
-        // Function to fetch and display doctors
-        function fetchDoctors(specializationId = "") {
-            let url = specializationId ? `/api/doctors/?specialization=${specializationId}` : "/api/doctors/";
-            fetch(url)
-                .then(response => response.json())
-                .then(data => {
-                    doctorsContainer.innerHTML = ""; // Clear previous results
-                    if (data.length === 0) {
-                        doctorsContainer.innerHTML = "<p class='text-center'>No doctors found for the selected specialization.</p>";
-                        return;
-                    }
-                    data.forEach(doctor => {
-                        if (!specializationId || doctor.doctor_profile.specialization_details.some(spec => spec.id == specializationId)) {
-                            const doctorCard = document.createElement("div");
-                            doctorCard.className = "col-md-4 mb-4";
-                            doctorCard.innerHTML = `
+    // Function to fetch and display doctors
+    function fetchDoctors(specializationId = "") {
+      let url = specializationId
+        ? `/api/doctors/?specialization=${specializationId}`
+        : "/api/doctors/";
+      fetch(url)
+        .then((response) => response.json())
+        .then((data) => {
+          doctorsContainer.innerHTML = ""; // Clear previous results
+          if (data.length === 0) {
+            doctorsContainer.innerHTML =
+              "<p class='text-center'>No doctors found for the selected specialization.</p>";
+            return;
+          }
+          data.forEach((doctor) => {
+            if (
+              !specializationId ||
+              doctor.doctor_profile.specialization_details.some(
+                (spec) => spec.id == specializationId
+              )
+            ) {
+              const doctorCard = document.createElement("div");
+              doctorCard.className = "col-md-4 mb-4";
+              doctorCard.innerHTML = `
                                 <div class="card border-0 shadow">
                                     <img src="${doctor.profile_photo}" class="card-img-top" alt="Doctor Photo">
                                     <div class="card-body">
@@ -67,35 +85,37 @@
                                     </div>
                                 </div>
                             `;
-                            doctorsContainer.appendChild(doctorCard);
-                        }
-                    });
-                })
-                .catch(error => console.error("Error fetching doctors:", error));
-        }
+              doctorsContainer.appendChild(doctorCard);
+            }
+          });
+        })
+        .catch((error) => console.error("Error fetching doctors:", error));
+    }
 
-        // Load all doctors initially
-        fetchDoctors();
+    // Load all doctors initially
+    fetchDoctors();
 
-        // Load Specializations in Dropdown
-        fetch("/api/specializations/")
-            .then(response => response.json())
-            .then(data => {
-                data.forEach(specialization => {
-                    let option = document.createElement("option");
-                    option.value = specialization.id;
-                    option.textContent = specialization.name;
-                    specializationDropdown.appendChild(option);
-                });
-            })
-            .catch(error => console.error("Error fetching specializations:", error));
-
-        // Fetch doctors based on selected specialization
-        searchForm.addEventListener("submit", function (event) {
-            event.preventDefault();
-            const selectedSpecialization = specializationDropdown.value;
-            fetchDoctors(selectedSpecialization);
+    // Load Specializations in Dropdown
+    fetch("/api/specializations/")
+      .then((response) => response.json())
+      .then((data) => {
+        data.forEach((specialization) => {
+          let option = document.createElement("option");
+          option.value = specialization.id;
+          option.textContent = specialization.name;
+          specializationDropdown.appendChild(option);
         });
+      })
+      .catch((error) =>
+        console.error("Error fetching specializations:", error)
+      );
+
+    // Fetch doctors based on selected specialization
+    searchForm.addEventListener("submit", function (event) {
+      event.preventDefault();
+      const selectedSpecialization = specializationDropdown.value;
+      fetchDoctors(selectedSpecialization);
     });
+  });
 </script>
 {% endblock %}

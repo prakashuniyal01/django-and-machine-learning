@@ -6,7 +6,7 @@ class AppointmentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Appointment
         fields = '__all__'
-        read_only_fields = ['status', 'created_at', 'updated_at']
+        read_only_fields = [ 'patient_name', 'status', 'created_at', 'updated_at']
 
     def validate(self, data):
         # Ensure patient and doctor roles are valid

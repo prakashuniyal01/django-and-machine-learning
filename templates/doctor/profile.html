@@ -1,0 +1,190 @@
+{% extends 'base.html' %}
+
+{% block title %}Profile - Smart Healthcare{% endblock %}
+
+{% block navbar %}    
+
+<button
+  class="navbar-toggler"
+  type="button"
+  data-bs-toggle="collapse"
+  data-bs-target="#navbarNav"
+  aria-controls="navbarNav"
+  aria-expanded="false"
+  aria-label="Toggle navigation"
+>
+  <span class="navbar-toggler-icon"></span>
+</button>
+<div class="collapse navbar-collapse" id="navbarNav">
+  <ul class="navbar-nav ms-auto">
+
+    <li class="nav-item"><a class="nav-link" href="{% url 'doctorprofile' %}">Dashboard</a></li>
+    <li class="nav-item"><a class="nav-link" href="{% url 'doctorprofile' %}">Appointments</a></li>
+    <li class="nav-item">
+      <a class="nav-link" href="{% url 'doctor-profile' %}">Profile</a>
+    </li>
+    <li class="nav-item"><a class="nav-link" href="{% url 'doctorprofile' %}">Analytics</a></li>
+
+  </ul>
+</div>
+        
+{% endblock %}
+
+{% block content %}
+
+
+<div class="sidebar">
+    <h4 class="text-center">Doctor Dashboard</h4>
+    <a href="{% url 'doctorprofile' %}">Dashboard</a>
+    <a href="{% url 'doctorprofile' %}">Appointments</a>
+    <a href="{% url 'doctorprofile' %}">Analytics</a>
+    <a href="{% url 'doctor-profile' %}">Profile</a>
+    <a href="/logout">Logout</a>
+</div>
+<!-- Full-screen Profile Section -->
+<section class="profile-section">
+    <div class="container-fluid">
+        <div class="row justify-content-center align-items-center">
+            <!-- Profile Container -->
+            <div class="col-lg-6 col-md-8 col-12">
+                <div class="card shadow-sm profile-card">
+                    <div class="card-body text-center">
+                        <div class="profile-photo-container">
+                            <img id="profile-photo" src="https://picsum.photos/200/300" alt="Profile Photo" class="rounded-circle">
+                            <input type="file" id="upload-photo" hidden>
+                        </div>                        
+                        <h3 id="username" class="mt-3"></h3>
+                        <p id="role" class="text-muted"></p>
+                    </div>
+                </div>  
+
+                <div class="card user-info mt-4">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-12">
+                                <label>Email</label>
+                                <input type="text" id="email" class="form-control" disabled>
+                            </div>
+                            <div class="col-12">
+                                <label>Phone</label>
+                                <input type="text" id="phone" class="form-control" disabled>
+                            </div>
+                            <div class="col-12">
+                                <label>Gender</label>
+                                <input type="text" id="gender" class="form-control" disabled>
+                            </div>
+                            <div class="col-12">
+                                <label>Date of Birth</label>
+                                <input type="date" id="dob" class="form-control" disabled>
+                            </div>
+                            <div class="col-12">
+                                <label>Address</label>
+                                <input type="text" id="address" class="form-control" disabled>
+                            </div>
+                            <div class="col-12">
+                                <label>Bio</label>
+                                <textarea id="bio" class="form-control" rows="3" disabled></textarea>
+                            </div>
+
+                            <!-- Doctor-Specific Details -->
+                            <div id="doctor-details" class="col-12 d-none mt-4">
+                                <label>License Number</label>
+                                <input type="text" id="license_number" class="form-control" disabled>
+
+                                <label>Specialization</label>
+                                <ul id="specializations" class="list-group mb-3"></ul>
+
+                                <label>Clinic Name</label>
+                                <input type="text" id="clinic_name" class="form-control" disabled>
+
+                                <label>Clinic Address</label>
+                                <input type="text" id="clinic_address" class="form-control" disabled>
+
+                                <label>Years of Experience</label>
+                                <input type="text" id="years_experience" class="form-control" disabled>
+                            </div>
+                        </div>
+                        <div class="text-center mt-3">
+                            <button id="edit-btn" class="btn btn-warning">Edit</button>
+                            <button id="save-btn" class="btn btn-success d-none">Save</button>
+                            <button id="cancel-btn" class="btn btn-secondary d-none">Cancel</button>
+                        </div>
+                    </div>
+                </div>
+            </div> <!-- End of Profile Container -->
+        </div> <!-- End of Row -->
+    </div>
+</section>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const editBtn = document.getElementById("edit-btn");
+        const saveBtn = document.getElementById("save-btn");
+        const cancelBtn = document.getElementById("cancel-btn");
+        const inputs = document.querySelectorAll("input, textarea");
+        const profilePhoto = document.getElementById("profile-photo");
+
+        // ✅ Get token from localStorage
+        const token = localStorage.getItem("access_token");
+
+        if (!token) {
+            alert("You are not logged in. Redirecting to login page.");
+            window.location.href = "/login/";
+            return;
+        }
+
+        // ✅ Fetch Profile Data
+        fetch("/api/profile/", {
+            headers: { "Authorization": `Bearer ${token}` }
+        })
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById("username").innerText = data.username;
+            document.getElementById("role").innerText = data.role;
+            document.getElementById("email").value = data.email;
+            document.getElementById("phone").value = data.phone;
+            document.getElementById("gender").value = data.gender;
+            document.getElementById("dob").value = data.date_of_birth;
+            document.getElementById("address").value = data.address;
+            document.getElementById("bio").value = data.bio;
+            profilePhoto.src = data.profile_photo;
+
+            // ✅ If role is doctor, show additional details
+            if (data.role === "doctor") {
+                document.getElementById("doctor-details").classList.remove("d-none");
+                document.getElementById("license_number").value = data.doctor_profile.license_number;
+                document.getElementById("clinic_name").value = data.doctor_profile.clinic_name;
+                document.getElementById("clinic_address").value = data.doctor_profile.clinic_address;
+                document.getElementById("years_experience").value = data.doctor_profile.years_experience;
+
+                // Load specializations
+                const specializationsList = document.getElementById("specializations");
+                data.doctor_profile.specialization_details.forEach(specialization => {
+                    const li = document.createElement("li");
+                    li.className = "list-group-item";
+                    li.innerText = specialization.name;
+                    specializationsList.appendChild(li);
+                });
+            }
+        })
+        .catch(error => console.error("Error fetching profile:", error));
+
+        // ✅ Enable editing
+        editBtn.addEventListener("click", function () {
+            inputs.forEach(input => input.disabled = false);
+            editBtn.classList.add("d-none");
+            saveBtn.classList.remove("d-none");
+            cancelBtn.classList.remove("d-none");
+        });
+
+        // ✅ Cancel editing
+        cancelBtn.addEventListener("click", function () {
+            inputs.forEach(input => input.disabled = true);
+            editBtn.classList.remove("d-none");
+            saveBtn.classList.add("d-none");
+            cancelBtn.classList.add("d-none");
+        });
+    });
+</script>
+
+{% endblock %}

@@ -1,169 +1,394 @@
-{% extends 'base.html' %}
+{% extends 'base.html' %} 
+{% block title %}Doctor - Smart Healthcare{%endblock%}
+{% block navbar %}    
 
-{% block title %}Doctor - Smart Healthcare{% endblock %}
+<button
+  class="navbar-toggler"
+  type="button"
+  data-bs-toggle="collapse"
+  data-bs-target="#navbarNav"
+  aria-controls="navbarNav"
+  aria-expanded="false"
+  aria-label="Toggle navigation"
+>
+  <span class="navbar-toggler-icon"></span>
+</button>
+<div class="collapse navbar-collapse" id="navbarNav">
+  <ul class="navbar-nav ms-auto">
 
-{% block navbar %}
- 
+    <li class="nav-item"><a class="nav-link" href="#">Dashboard</a></li>
+    <li class="nav-item"><a class="nav-link" href="#appointments">Appointments</a></li>
+    <li class="nav-item">
+      <a class="nav-link" href="{% url 'doctor-profile' %}">Profile</a>
+    </li>
+    <li class="nav-item"><a class="nav-link" href="#analytics">Analytics</a></li>
+
+  </ul>
+</div>
+        
 {% endblock %}
-
-{% load static %}
-{% block content %}
+{% load static %} {% block content %}
 <!-- Sidebar -->
 <div class="sidebar">
-    <h4 class="text-center">Doctor Dashboard</h4>
-    <a href="#">Dashboard</a>
-    <a href="#appointments">Appointments</a>
-    <a href="#analytics">Analytics</a>
-    <a href="#profile">Profile</a>
-    <a href="/logout">Logout</a>
+  <h4 class="text-center">Doctor Dashboard</h4>
+  <a href="#">Dashboard</a>
+  <a href="#appointments">Appointments</a>
+  <a href="#analytics">Analytics</a>
+  <a href="{% url 'doctor-profile' %}">Profile</a>
+  <a href="/logout">Logout</a>
 </div>
+
+<!-- Button to toggle sidebar (for mobile screens) -->
+<button class="btn btn-primary d-md-none" id="sidebar-toggle">☰</button>
 
 <!-- Main Content -->
 <div class="main-content">
-    <!-- Dashboard Overview -->
-    <section id="dashboard">
-        <h2>Overview</h2>
-        <div class="row">
-            <div class="col-12 col-md-4">
-                <div class="card text-white bg-primary">
-                    <div class="card-body">
-                        <h5 class="card-title">Today's Appointments</h5>
-                        <p class="card-text fs-3">10</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-12 col-md-4">
-                <div class="card text-white bg-warning">
-                    <div class="card-body">
-                        <h5 class="card-title">Pending</h5>
-                        <p class="card-text fs-3">5</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-12 col-md-4">
-                <div class="card text-white bg-success">
-                    <div class="card-body">
-                        <h5 class="card-title">Completed</h5>
-                        <p class="card-text fs-3">20</p>
-                    </div>
-                </div>
-            </div>
+  <!-- Dashboard Overview -->
+  <section id="dashboard">
+    <h2>Overview</h2>
+    <div class="row">
+      <div class="col-12 col-md-4">
+        <div class="card text-white bg-primary">
+          <div class="card-body">
+            <h5 class="card-title">Today's Appointments</h5>
+            <p id="today-appointments" class="card-text fs-3">0</p>
+          </div>
         </div>
-    </section>
-
-    <!-- Appointments -->
-    <section id="appointments">
-        <h2>Appointments</h2>
-        <table class="table table-striped">
-            <thead>
-                <tr>
-                    <th>Patient Name</th>
-                    <th>Time</th>
-                    <th>Status</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>John Doe</td>
-                    <td>10:00 AM</td>
-                    <td>Pending</td>
-                    <td>
-                        <button class="btn btn-success btn-sm">Mark as Completed</button>
-                        <button class="btn btn-danger btn-sm">No Show</button>
-                    </td>
-                </tr>
-                <tr>
-                    <td>Jane Smith</td>
-                    <td>11:00 AM</td>
-                    <td>Confirmed</td>
-                    <td>
-                        <button class="btn btn-success btn-sm">Mark as Completed</button>
-                        <button class="btn btn-danger btn-sm">No Show</button>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-    </section>
-
-    <!-- Analytics -->
-    <section id="analytics">
-        <h2>Analytics</h2>
-        <div class="row">
-            <div class="col-12 col-md-6">
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">Peak Hours</h5>
-                        <canvas id="peakHoursChart" class="chart"></canvas>
-                    </div>
-                </div>
-            </div>
-            <div class="col-12 col-md-6">
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">Appointment Trends</h5>
-                        <canvas id="appointmentTrendsChart" class="chart"></canvas>
-                    </div>
-                </div>
-            </div>
+      </div>
+      <div class="col-12 col-md-4">
+        <div class="card text-white bg-warning">
+          <div class="card-body">
+            <h5 class="card-title">Pending</h5>
+            <p id="pending-appointments" class="card-text fs-3">0</p>
+          </div>
         </div>
-    </section>
+      </div>
+      <div class="col-12 col-md-4">
+        <div class="card text-white bg-success">
+          <div class="card-body">
+            <h5 class="card-title">Completed</h5>
+            <p id="completed-appointments" class="card-text fs-3">0</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
 
-    <!-- Profile -->
-    <section id="profile">
-        <h2>Profile</h2>
-        <form>
-            <div class="mb-3">
-                <label for="name" class="form-label">Name</label>
-                <input type="text" class="form-control" id="name" value="Dr. Raj" />
-            </div>
-            <div class="mb-3">
-                <label for="specialization" class="form-label">Specialization</label>
-                <input type="text" class="form-control" id="specialization" value="Cardiology" />
-            </div>
-            <div class="mb-3">
-                <label for="availability" class="form-label">Availability</label>
-                <input type="text" class="form-control" id="availability" value="Mon-Fri, 10 AM - 4 PM" />
-            </div>
-            <button type="submit" class="btn btn-primary">Save Changes</button>
-        </form>
-    </section>
+  <!-- Appointments -->
+  <section id="appointments">
+    <h2>Appointments</h2>
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <!-- <th>Patient Name</th> -->
+          <th>Time</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="appointment-table-body">
+        <!-- Dynamic rows will be added here -->
+      </tbody>
+    </table>
+  </section>
+
+  <!-- Analytics -->
+  <section id="analytics" class="container my-5">
+    <h2 class="text-center mb-4">Appointment Analytics</h2>
+    <div class="row">
+      <!-- Peak Hours Chart -->
+      <div class="col-12 col-md-6 mb-4 mb-md-0">
+        <div class="card shadow-sm">
+          <div class="card-body">
+            <h5 class="card-title text-center">Peak Hours</h5>
+            <canvas id="peakHoursChart" class="chart"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-12 col-md-6 mb-4 mb-md-0">
+        <div class="card shadow-sm">
+          <div class="card-body">
+            <h2>Appointment Insights</h2>
+            <canvas id="statusChart"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Additional Row for More Charts (If Needed) -->
+    <div class="row mt-4">
+      <!-- Doctor Workload -->
+
+
+    </div>
+  </section>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-    // Example data for charts
-    const peakHoursCtx = document.getElementById('peakHoursChart').getContext('2d');
-    const appointmentTrendsCtx = document.getElementById('appointmentTrendsChart').getContext('2d');
+  const token = localStorage.getItem("access_token");
+  // ================================================= fetch appointments  Overview ================================================================
+  // Function to fetch appointments  Overview
+  async function fetchAppointmentData() {
+    try {
+      //const token = localStorage.getItem("token"); // Assuming token is stored in localStorage
+      if (!token) {
+        alert("Unauthorized. Please log in.");
+        window.location.href = "/login/";
+        return;
+      }
 
-    new Chart(peakHoursCtx, {
-        type: 'bar',
-        data: {
-            labels: ['10 AM', '11 AM', '12 PM', '1 PM', '2 PM'],
-            datasets: [{
-                label: 'Number of Appointments',
-                data: [5, 8, 10, 6, 3],
-                backgroundColor: 'rgba(54, 162, 235, 0.5)',
-                borderColor: 'rgba(54, 162, 235, 1)',
-                borderWidth: 1
-            }]
-        }
-    });
+      const response = await fetch("/api/", {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
-    new Chart(appointmentTrendsCtx, {
-        type: 'line',
-        data: {
-            labels: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
-            datasets: [{
-                label: 'Appointments',
-                data: [20, 18, 25, 22, 30],
-                backgroundColor: 'rgba(75, 192, 192, 0.5)',
-                borderColor: 'rgba(75, 192, 192, 1)',
-                borderWidth: 2
-            }]
+      if (!response.ok) {
+        throw new Error("Failed to fetch appointments. Please try again.");
+      }
+
+      const appointments = await response.json();
+      const today = new Date().toISOString().split("T")[0]; // Today's date in YYYY-MM-DD format
+      let todayCount = 0;
+      let pendingCount = 0;
+      let completedCount = 0;
+
+      appointments.forEach((appointment) => {
+        const appointmentDate = appointment.appointment_date;
+        const status = appointment.status;
+
+        if (appointmentDate === today) {
+          todayCount++;
         }
+        if (
+          new Date(appointmentDate) > new Date(today) &&
+          status === "SCHEDULED"
+        ) {
+          pendingCount++;
+        }
+        if (
+          new Date(appointmentDate) < new Date(today) ||
+          status === "COMPLETED"
+        ) {
+          completedCount++;
+        }
+      });
+
+      // Update the DOM with the counts
+      document.getElementById("today-appointments").textContent = todayCount;
+      document.getElementById("pending-appointments").textContent =
+        pendingCount;
+      document.getElementById("completed-appointments").textContent =
+        completedCount;
+    } catch (error) {
+      console.error(error.message);
+      alert("An error occurred while fetching the data.");
+      window.location.href = "/login/";
+    }
+  }
+
+  // Fetch data on page load
+  document.addEventListener("DOMContentLoaded", fetchAppointmentData);
+  // =================================================================================================================
+
+  async function fetchAppointments() {
+    try {
+      const response = await fetch("/api/", {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.ok) throw new Error("Failed to fetch appointments.");
+
+      const data = await response.json();
+      populateAppointments(data);
+    } catch (error) {
+      console.error("Error fetching appointments:", error);
+    }
+  }
+
+  // Function to populate the appointments table
+  function populateAppointments(appointments) {
+    const tableBody = document.getElementById("appointment-table-body");
+    tableBody.innerHTML = ""; // Clear existing rows
+    // <td>${appointment.patient_name || "Unknown"}</td>
+    appointments.forEach((appointment) => {
+      const row = document.createElement("tr");
+
+      row.innerHTML = `
+        
+        <td>${appointment.appointment_date} ${appointment.start_time.slice(
+        0,
+        5
+      )} - ${appointment.end_time.slice(0, 5)}</td>
+        <td>${appointment.status}</td>
+        <td>
+          <button class="btn btn-success btn-sm" onclick="updateStatus(${
+            appointment.id
+          }, 'COMPLETED')">Mark as Completed</button>
+          <button class="btn btn-danger btn-sm" onclick="updateStatus(${
+            appointment.id
+          }, 'CANCELLED')">No Show</button>
+        </td>
+      `;
+
+      tableBody.appendChild(row);
     });
+  }
+
+  // Function to update the status of an appointment
+  async function updateStatus(appointmentId, status) {
+    try {
+      const response = await fetch(`/api/${appointmentId}/status/`, {
+        method: "PATCH",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ status }),
+      });
+
+      if (!response.ok) throw new Error("Failed to update status.");
+
+      alert("Appointment status updated successfully.");
+      fetchAppointments(); // Refresh the table
+    } catch (error) {
+      console.error("Error updating status:", error);
+    }
+  }
+
+  // Fetch appointments on page load
+  document.addEventListener("DOMContentLoaded", fetchAppointments);
+  // =================================================================================================================
+ 
+
+  // ======================================================= peakHoursChart ==========================================================
+
+  async function loadPeakHoursChart() {
+    try {
+      const response = await fetch("/api/", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (response.ok) {
+        const appointments = await response.json();
+
+        // Group appointments by hour
+        const hourCounts = new Array(24).fill(0); // 24 hours in a day
+
+        appointments.forEach((appointment) => {
+          const hour = new Date(appointment.scheduled_time).getHours();
+          hourCounts[hour] += 1;
+        });
+
+        // Prepare data for the chart
+        const labels = Array.from({ length: 24 }, (_, i) => `${i}:00`);
+        const data = hourCounts;
+
+        // Create the Peak Hours Bar Chart
+        const ctx = document.getElementById("peakHoursChart").getContext("2d");
+        new Chart(ctx, {
+          type: "bar",
+          data: {
+            labels: labels, // Hour labels
+            datasets: [
+              {
+                label: "Appointments per Hour",
+                data: data, // Number of appointments for each hour
+                backgroundColor: "#36A2EB", // Bar color
+                borderColor: "#1E6F97", // Border color
+                borderWidth: 1,
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+            scales: {
+              y: {
+                beginAtZero: true,
+                title: {
+                  display: true,
+                  text: "Number of Appointments",
+                },
+              },
+            },
+            plugins: {
+              title: {
+                display: true,
+                text: "Peak Appointment Hours",
+              },
+              tooltip: {
+                callbacks: {
+                  label: function (tooltipItem) {
+                    return `Appointments: ${tooltipItem.raw}`;
+                  },
+                },
+              },
+            },
+          },
+        });
+      }
+    } catch (error) {
+      console.error("Error fetching appointments:", error);
+    }
+  }
+
+  loadPeakHoursChart();
+    // =================================================================================================================
+
+  // ===================================================== statusChart ============================================================
+  async function loadCharts() {
+    try {
+      const response = await fetch("/api/", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (response.ok) {
+        const appointments = await response.json();
+
+        // Process data for the chart
+        const statusCounts = appointments.reduce((acc, appointment) => {
+          acc[appointment.status] = (acc[appointment.status] || 0) + 1;
+          return acc;
+        }, {});
+
+        // Prepare labels and data for the chart
+        const labels = Object.keys(statusCounts);
+        const data = Object.values(statusCounts);
+
+        // Create the pie chart
+        const ctx = document.getElementById("statusChart").getContext("2d");
+        new Chart(ctx, {
+          type: "pie",
+          data: {
+            labels: labels,
+            datasets: [
+              {
+                label: "Appointment Statuses",
+                data: data,
+                backgroundColor: ["#FF6384", "#36A2EB", "#FFCE56"], // Customize colors
+                hoverOffset: 4,
+              },
+            ],
+          },
+        });
+      }
+    } catch (error) {
+      console.error("Error fetching appointments:", error);
+    }
+  }
+
+  loadCharts();
+  // =================================================================================================================
 </script>
 
 {% endblock %}
